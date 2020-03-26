@@ -455,7 +455,7 @@ go build -o hello
 #### 9.6.4 -mod=vendor 标识(如 `go build -mod=vendor`)
 
 - 默认的，`go build` 等 go 命令在模块模式时会忽视 `vendor` 目录
-- `-mod=vendor` 标识指示 go 命令使用主模块顶层的 `vendor` 目录来满足依赖(j禁用网络资源和本地缓存)
+- `-mod=vendor` 标识指示 go 命令使用主模块顶层的 `vendor` 目录来满足依赖(禁用网络资源和本地缓存)
 - 想要一直使用设置 `GOFLAGS=-mod=vendor`
 
 #### 9.6.5 GO111MODULE=off 环境变量
