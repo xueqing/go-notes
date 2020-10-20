@@ -24,10 +24,13 @@
 - [错误处理](go_error_handling.md)
 - 补充笔记
   - [异常处理](go_exception.md)
+  - [runtime 环境变量](go_runtime_env.md)
+  - [堆栈跟踪分析](go_stack_trace.md.md)
   - [包](go_package.md)
   - [结构体](go_struct.md)
   - [goroutine](go_goroutine.md)
   - [通道](go_channel.md)
   - [WaitGroup 和 worker pool](go_waitgroup.md)
   - [锁](go_mutex.md)
+  - [unsafe 包](go_unsafe.md)
   - [模块](go_module.md)
