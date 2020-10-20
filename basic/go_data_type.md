@@ -1,42 +1,52 @@
 # go 数据类型
 
-- [go 数据类型](#go-%e6%95%b0%e6%8d%ae%e7%b1%bb%e5%9e%8b)
-  - [数据类型](#%e6%95%b0%e6%8d%ae%e7%b1%bb%e5%9e%8b)
-  - [数据类型默认初始化值](#%e6%95%b0%e6%8d%ae%e7%b1%bb%e5%9e%8b%e9%bb%98%e8%ae%a4%e5%88%9d%e5%a7%8b%e5%8c%96%e5%80%bc)
-  - [类型推导](#%e7%b1%bb%e5%9e%8b%e6%8e%a8%e5%af%bc)
+- [go 数据类型](#go-数据类型)
+  - [数据类型](#数据类型)
+    - [基本数据类型/预定义类型](#基本数据类型预定义类型)
+    - [复合类型](#复合类型)
+  - [数据类型默认初始化值](#数据类型默认初始化值)
+  - [类型推导](#类型推导)
+  - [值类型 vs 引用类型](#值类型-vs-引用类型)
+  - [数据初始化](#数据初始化)
+  - [数据可比性](#数据可比性)
 
 ## 数据类型
 
 - 数据类型把数据分成所需内存大小不同的数据
-  - 布尔型：true 或 false
-  - 数字类型：
-    - 整型
-      - 有符号 int(int, int8, int16, int32, int64)，默认是 int
-        - int 是 32 或 64 位，取决于底层平台。建议使用 int 来表示整数，除非需要指定大小
-        - 32 位系统就是 32 位，64 位 系统就是 64 位
-      - 无符号 uint(uint, uint8, uint16, uint32, unit64)
-        - uint 32 或 64 位，同上
-    - 浮点型 float(float32, float64)，默认是 float64
-    - 复数 complex(complex64, complex128)
-      - complex64 32 位实数和虚数
-      - complex128 64 位实数和虚数
-      - 使用内置函数 complex 构造一个复数`func complex(r, i FloatType) ComplexType`
-        - 实部 r 和虚部 i 应该是同一类型，float32 或 float64，返回的复数类型是 complex64 或 complex128
-      - 也可直接生成复数`c := 6 + 7i`
-    - byte 是 uint8 的别名
-    - rune 是 int32 的别名，表示 Unicode code point
-    - uintptr 无符号整型，用于存放一个指针
-  - 字符串类型：字节使用 UTF-8 编码标识 Unicode 文本，是字节的集合
-  - 派生类型：
-    - 指针类型 pointer
-    - 数组类型
-    - 结构化类型 struct
-    - Channel 类型
-    - 函数类型
-    - 切片类型
-    - 接口类型 interface
-    - map 类型
 - 可以使用 `%T` 格式化打印变量的类型，使用 `%v` 打印变量的值
+  
+### 基本数据类型/预定义类型
+
+- 布尔型：true 或 false
+- 数值类型：
+  - 整型
+    - 有符号 int(int, int8, int16, int32, int64)，默认是 int
+      - int 是 32 或 64 位，取决于底层平台。建议使用 int 来表示整数，除非需要指定大小
+      - 32 位系统就是 32 位，64 位 系统就是 64 位
+    - 无符号 uint(uint, uint8, uint16, uint32, unit64)
+      - uint 32 或 64 位，同上
+  - 浮点型 float(float32, float64)，默认是 float64
+  - 复数 complex(complex64, complex128)
+    - complex64 32 位实数和虚数
+    - complex128 64 位实数和虚数
+    - 使用内置函数 complex 构造一个复数`func complex(r, i FloatType) ComplexType`
+      - 实部 r 和虚部 i 应该是同一类型，float32 或 float64，返回的复数类型是 complex64 或 complex128
+    - 也可直接生成复数`c := 6 + 7i`
+  - byte 是 uint8 的别名
+  - rune 是 int32 的别名，表示 Unicode code point，存储经过 Unicode 编码的字符
+  - uintptr 无符号整型，用于存放一个指针
+- 字符串类型：字节使用 UTF-8 编码标识 Unicode 文本，是字节的集合
+
+### 复合类型
+
+- 数组类型 array
+- 结构体类型 struct
+- 函数类型 function
+- 接口类型 interface
+- 切片类型 slice
+- 字典类型 map
+- 通道类型 channel
+- 指针类型 pointer
 
 ## 数据类型默认初始化值
 
@@ -58,3 +68,25 @@
   f := 3.142        // float64
   g := 0.867 + 0.5i // complex128
   ```
+
+## 值类型 vs 引用类型
+
+切片、map、channel、接口和函数是引用类型。当生命上述类型的变量时，创建的变量被称作 header 值。每个引用类型创建的 header 是包含一个指向底层数据结构的指针。每个引用类型还包含一组独特的字段，用于管理底层数据结构。因为 header 是用于复制设计的，所以不需要共享一个引用类型的值。header 中包含一个指针，因此通过复制来传递一个引用类型的值的副本，本质上是再共享底层数据结构。
+
+从技术细节上来说，字符串也是一种引用类型。但是字符串是内置类型。当对其进行增加或删除的时候，会创建一个新值。
+
+在 Go 语言中，只有“值传递”而没有“引用传递”。因此函数内部对参数值的改变是否对外部可见只取决于被改变的值的类型是值类型还是引用类型。
+
+## 数据初始化
+
+阅读[使用 new 分配](https://golang.org/doc/effective_go.html#allocation_new)、[构造函数和复合字面量](https://golang.org/doc/effective_go.html#composite_literals)、[使用 make 分配](https://golang.org/doc/effective_go.html#allocation_make)。
+
+总结：
+
+- 字面量可被用于初始化几乎所有的 go 语言数据类型的值，除了接口和通道。接口类型没有值，而通道只能使用 make 函数创建。如果需要指向值的指针值，可以在表示该值的字面量之上进行取址操作
+- 内建函数 new 主要用于创建值类型的值。调用 new 函数的表达式的结果值是指向被创建值的指针，且被创建值是所属类型的零值。因此，new 不适合用于创建引用类型的值。其直接原因是引用类型的值的零值都是 nil，是不可用的
+- 内建函数 make 仅用于创建某些引用类型(切片、字典和通道)的值。make 在创建值之后还会对其进行必要的初始化。与 new 不同，调用 make 函数的表达式的结果是被创建的值本身，而不是指针
+
+## 数据可比性
+
+切片、字典和函数的值不具有可比性。但是，这些值可以与 nil 进行判等。

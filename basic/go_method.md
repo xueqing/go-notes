@@ -17,6 +17,7 @@
 - 方法是一类带特殊的“接收者”参数的函数
   - 方法接收者在参数列表内，位于 `func` 关键字和方法名之间
   - 接收者可以是命名类型或者结构体类型的个值或一个指针
+  - 接收者的基本类型不能是接口类型，也不能是指针类型
   - 所有给定类型的方法属于该类型的方法集
 - 语法格式
 
@@ -79,6 +80,12 @@ func main() {
 
 ## 指针接收者 vs 值接收者
 
+### 使用值接收者
+
+- 使用值接收者，类似于形参，方法内部的修改不影响调用者。方法会得到调用的值的副本。
+  - 当接收者类型是引用类型(指针、切片、map、channel)的别名时，那么使用值作为接收者的方法内部的修改对外部也时可见的
+- 接收一个值作为参数的函数必须接受一个指定类型的值，而以值作为接收者的方法被调用时，接收者可以是值或者指针
+
 ### 使用指针接收者
 
 - 使用指针接收者，在方法内部修改会影响调用者
@@ -114,6 +121,8 @@ func main() {
   ```
 
 - 带指针参数的函数必须接受一个指针，而以指针为接收者的方法被调用时，接收者可以是值或者指针，go 会根据接收者类型自动调整
+  - 当使用值调用方法时，会自动对值取地址，使用其指针调用对应的方法
+- 即某个类型的值只能调用值作为接收者的方法；但是该类型的指针可以调用值作为接收者的方法，也可以调用作为指针作为接收者的方法
 
   ```go
   package main
@@ -149,10 +158,71 @@ func main() {
   }
   ```
 
-### 使用值接收者
+## 通过接口类型的值调用方法
 
-- 使用值接收者，类似于形参，方法内部的修改不影响调用者
-- 接收一个值作为参数的函数必须接受一个指定类型的值，而以值作为接收者的方法被调用时，接收者可以是值或者指针
+与直接通过值或者指针调用方法不同，如果通过接口类型的值调用方法，那么：使用指针作为接收者声明者的方法，只能在接口类型的值是一个指针的时候被调用；使用值作为接收者声明的方法，在接口类型的值为值或者指针时，都可以被调用。
+
+```go
+package main
+
+import (
+  "fmt"
+)
+
+type myInterface interface {
+  SayHello()
+}
+
+type implePointer struct{}
+
+func (i *implePointer) SayHello() {
+  fmt.Printf("I am a pointer\n")
+}
+
+type impleValue struct{}
+
+func (i impleValue) SayHello() {
+  fmt.Printf("I am a value\n")
+}
+
+func main() {
+  var (
+    ip    implePointer
+    ipptr *implePointer
+    iv    impleValue
+    ivptr *impleValue
+
+    im myInterface
+  )
+
+  ip.SayHello()
+  // im = ip //cannot use ip (variable of type implePointer) as myInterface value in assignment: missing method SayHello
+
+  ipptr.SayHello()
+  im = ipptr
+  im.SayHello()
+
+  ipptr2 := &ip
+  ipptr2.SayHello()
+  im = ipptr2
+  im.SayHello()
+
+  iv.SayHello()
+  im = iv
+  im.SayHello()
+
+  // ivptr.SayHello() //panic: runtime error: invalid memory address or nil pointer dereferenc
+  im = ivptr
+  // im.SayHello() //panic: value method main.impleValue.SayHello called using nil *impleValue pointer
+
+  ivptr2 := &iv
+  ivptr2.SayHello()
+  im = ivptr2
+  im.SayHello()
+
+  return
+}
+```
 
 ## 方法的匿名域
 

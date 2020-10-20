@@ -32,6 +32,46 @@
 
 - 导出名：首字母大写的名字是导出的名字，首字母小写只能包内使用。导入包之后只能使用包导出的名字
 
+### 使用未导出的标识符
+
+使用未导出的标识符需要：
+
+- 导出或未导出的标识符不是一个值
+- 短变量声明操作符可以捕获引用的类型，并创建一个未导出的类型的变量：永远不能显式创建一个未公开的类型的变量，但是短变量声明操作符可以
+
+```go
+package entity
+
+import "fmt"
+
+type privateType int
+
+// New ...
+func New(val int) privateType {
+  return privateType(val)
+}
+
+func (p *privateType) SayHello() {
+  fmt.Printf("Hi, I am private type addr(%v) val(%v) int(%v)\n", p, *p, int(*p))
+}
+```
+
+```go
+package main
+
+import (
+  "entity"
+)
+
+func main() {
+  // var onept entity.privateType //privateType not exported by package entity
+  pt := entity.New(2)
+  pt.SayHello()
+
+  return
+}
+```
+
 ## 导入包的重命名
 
 - 导入包后可以自定义引用的包名

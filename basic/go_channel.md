@@ -1,10 +1,12 @@
-# 信道
+# 通道
 
-- [信道](#%e4%bf%a1%e9%81%93)
+- [通道](#通道)
   - [channel](#channel)
-  - [单向 channel](#%e5%8d%95%e5%90%91-channel)
-  - [close 关闭信道](#close-%e5%85%b3%e9%97%ad%e4%bf%a1%e9%81%93)
-  - [有缓冲的 channel](#%e6%9c%89%e7%bc%93%e5%86%b2%e7%9a%84-channel)
+  - [操作 channel](#操作-channel)
+  - [channel 传送数据](#channel-传送数据)
+  - [单向 channel](#单向-channel)
+  - [close 关闭通道](#close-关闭通道)
+  - [有缓冲的 channel](#有缓冲的-channel)
 
 ## channel
 
@@ -12,7 +14,7 @@
 - 每个 channel 有一个关联的类型，这个类型是 channel 允许传输的数据类型
   - `chan T` 是一个 T 类型的通道
 - channel 的初始化值是 nil，使用 make 定义`chan_name := make(chan chan_type)`
-- 使用信道操作符 `<-` 发送或接收值，箭头是数据流的方向
+- 使用通道操作符 `<-` 发送或接收值，箭头是数据流的方向
   - `data := <- chan_name`从 chan_name 读数据，当不需要保存读的数据时是`<- chan_name`
   - `chan_name <- data`往 chan_name 写数据
   - 发送和接收模式是阻塞的，通过 channel 发送数据的时候，控制会阻塞在发送语句直到其他的 goroutine 从 channel 读数据，读数据亦然
@@ -50,6 +52,17 @@ func ChannelTest() {
 }
 ```
 
+## 操作 channel
+
+- channel 的零值是 nil，使用 make 进行初始化
+- 对于 nil 的通道，发送和接收数据都会阻塞
+- 对于关闭的通道，发送数据会导致恐慌，接收端收到所有发送的数据之后，继续读得到对应数据类型的零值
+
+## channel 传送数据
+
+- 通道传递的值的不变性：通过通道发送的数据是值的副本，且是深拷贝(完全复制)。之后对原来的值的修改不会影响到通道中的副本
+- 针对非缓冲通道的接收操作会在与之对应的发送操作完成之前完成。即发送操作在向非缓冲通道发送元素值的时候，会等待能够接收该元素值的接收操作。只有确保该元素值被成功接收，发送操作才会完成执行
+
 ## 单向 channel
 
 - 可以创建单向的 channel，只用来发送或接受数据，然而没有什么意义
@@ -67,11 +80,11 @@ func ChannelTest() {
     }
     ```
 
-## close 关闭信道
+## close 关闭通道
 
 - 发送者可以通过`close chan_name`关闭 channel，通知接收者没有数据了，接收者通过`var, ok := <- chan_name`接受数据，如果是已经关闭的 channel，ok 会赋值 false，主要在用 `for range` 循环从 channel 不断接受数据时使用
-- **只有发送者才能关闭信道**。向一个已经关闭的信道发送数据会引发程序 panic
-- **信道与文件不同，通常情况下无需关闭**。只有在必须告诉接收者不再有需要发送的值时才有必要关系，例如终止一个 `for range` 循环
+- **只有发送者才能关闭通道**。向一个已经关闭的通道发送数据会引发程序 panic
+- **通道与文件不同，通常情况下无需关闭**。只有在必须告诉接收者不再有需要发送的值时才有必要关系，例如终止一个 `for range` 循环
 
   ```go
   func chanSender(chanop chan int) {

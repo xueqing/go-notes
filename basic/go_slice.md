@@ -1,43 +1,89 @@
 # go 切片
 
-- [go 切片](#go-%e5%88%87%e7%89%87)
+- [go 切片](#go-切片)
   - [slice](#slice)
-  - [slice 长度和容量](#slice-%e9%95%bf%e5%ba%a6%e5%92%8c%e5%ae%b9%e9%87%8f)
-    - [append 追加到 slice](#append-%e8%bf%bd%e5%8a%a0%e5%88%b0-slice)
-  - [copy 对 slice 拷贝](#copy-%e5%af%b9-slice-%e6%8b%b7%e8%b4%9d)
-  - [对 slice 切片](#%e5%af%b9-slice-%e5%88%87%e7%89%87)
+    - [引用数组和切片初始化的区别](#引用数组和切片初始化的区别)
+  - [nil 切片和空切片](#nil-切片和空切片)
+    - [nil 切片](#nil-切片)
+    - [空切片](#空切片)
+  - [slice 长度和容量](#slice-长度和容量)
+    - [指定容量上界索引](#指定容量上界索引)
+    - [append 追加到 slice](#append-追加到-slice)
+  - [copy 对 slice 拷贝](#copy-对-slice-拷贝)
+  - [对 slice 切片](#对-slice-切片)
   - [slice vs array](#slice-vs-array)
-    - [创建 array 和 slice](#%e5%88%9b%e5%bb%ba-array-%e5%92%8c-slice)
-    - [切片底层是数组](#%e5%88%87%e7%89%87%e5%ba%95%e5%b1%82%e6%98%af%e6%95%b0%e7%bb%84)
-  - [使用 make 函数创建 slice](#%e4%bd%bf%e7%94%a8-make-%e5%87%bd%e6%95%b0%e5%88%9b%e5%bb%ba-slice)
-  - [slice 内存储 slice](#slice-%e5%86%85%e5%ad%98%e5%82%a8-slice)
-  - [内存优化](#%e5%86%85%e5%ad%98%e4%bc%98%e5%8c%96)
+    - [创建 array 和 slice](#创建-array-和-slice)
+    - [切片底层是数组](#切片底层是数组)
+  - [使用 make 函数创建 slice](#使用-make-函数创建-slice)
+  - [slice 内存储 slice](#slice-内存储-slice)
+  - [内存优化](#内存优化)
 
 ## slice
 
-- 切片是对数组的抽象，是一种“动态数组”，长度不固定，可以追加元素
+- 切片是对数组的抽象，是一种“动态数组”，长度不固定，可以追加元素。切片的底层数据结构包含：
+  - 指针：指向底层数组
+  - int：表示切片长度
+  - int：表示切片容量
+- 一个切片的容量是固定的
 - 定义 `var slice_name []type`
 - 初始化
-  - 直接初始化`slice_name := [] int {var1, var2..., varn}`
-  - 引用数组初始化`slice_name := arr_name[:]`
-  - 引用部分数组初始化
-    - `slice_name := arr_name[startIndex:endIndex]`，引用下标 startIndex 到 endIndex-1 下的元素创建为一个新的切片
-    - `slice_name := arr_name[startIndex:]`，引用下标 startIndex 到最后一个元素创建为一个新的切片
-    - `slice_name := arr_name[startIndex:]`，引用第一个元素到 endIndex-1 下的元素创建为一个新的切片
+  - 直接初始化`slice_name := [] int {var1, var2..., varn}`：使用复合字面量初始化一个切片值时，先创建该切片值所引用的底层数组，切片长度=切片容量=数组长度
+  - 使用数组初始化：切片底层数组就是引用的数组，即切片底层指针指向引用的第一个元素或指定下标的元素；切片的长度等于引用的元素计数；切片的容量是从指向到元素到底层数组最后一个元素的计数
+    - 引用数组初始化`slice_name := arr_name[:]`
+    - 引用部分数组初始化
+      - `slice_name := arr_name[startIndex:endIndex]`，引用下标 startIndex 到 endIndex-1 下的元素创建为一个新的切片
+      - `slice_name := arr_name[startIndex:]`，引用下标 startIndex 到最后一个元素创建为一个新的切片
+      - `slice_name := arr_name[startIndex:]`，引用第一个元素到 endIndex-1 下的元素创建为一个新的切片
   - 通过切片初始化`slice_name := origina_slice[startIndex:endIndex]`
+
+### 引用数组和切片初始化的区别
+
+- 如果 a 是切片类型，那么 `a[:]` 等同于复制 a 所代表的值并将整个拷贝作为此表达式的求值结果，**注意：**返回的切片和 a 指向的是同一个底层数组
+- 如果 a 是指针类型，那么 `a[:]` 生成一个包含了指向 a 的第一个元素的指针的切片类型值
+
+## nil 切片和空切片
+
+对 nil 切片和空切片，调用内置函数 `append`/`len`/`cap` 的效果相同。
+
+### nil 切片
+
+使用 `var slice []int` 创建的是 nil 切片。nil 切片可用于很多标准库和内置函数。在需要描述一个不存在的切片时，nil 切片会很好用。比如，函数要求返回一个切片但是发生异常的时候。
+
+nil 切片底层数据结构的指针是 nil，长度和容量是 0。
+
+### 空切片
+
+- 使用 `make` 创建 `slice := make([]int, 0)`
+- 使用切片字面量创建 `slice := []int{}`
+
+空切片在底层数据包含 0 个元素，也没有分配任何存储空间，没有底层数组。想表示空集合时空切片很有用。比如，数据库查询返回 0 个查询结果时。
+
+空切片子层数组的指针是地址而不是 nil，但是长度和容量为 0。
 
 ## slice 长度和容量
 
 - 使用 `len(slice_name)` 方法获取切片长度，指的是 slice 中元素的数目
 - 使用 `cap(slice_name)` 方法获取切片容量，即最长可以达到多少，指的是底层数组的元素数目，起始下标是创建切片时的起始下标
-- 空切片 nil，即未初始化的切片，长度为 0，容量为 0，没有底层数组
-- 切片截取`slice_name[lower_bound : upper_bound]`
-  - 下限默认为 0
-  - 上限默认为 len(slice_name)
+- 切片截取`slice_name[lower_bound : upper_bound : cap_bound]`
+  - lower_bound 下限默认为 0
+  - upper_bound 上限默认为 len(slice_name)
+  - cap_bound 容量上限默认为 cap(slice_name)
+- 对底层数组容量是 k 的切片 `slice[i:j]` 来说，长度是 `j-i`，容量是 `k-i`
+- 对切片 `slice[i:j:k]` 来说，长度是 `j-i`，容量是 `k-i`
 - 增加切片容量：创建一个更大的数组并把原数组的内容拷贝到新数组，新切片的容量增加一倍
   - 使用 `append(slice_name, [param_list])` 函数往切片追加新元素
     - `[param_list]`也可以是一个切片，用`...`，如`newslice := append(slice1, slice2...)`
   - 使用 `copy(dst_slice, ori_slice) int` 函数拷贝切片
+
+### 指定容量上界索引
+
+切片表达式默认有两个参数：元素下界索引(默认为 0)、元素上界索引(默认为切片或数组长度)。另外，还可以指定容量上界索引。
+
+即 `a[idx1:idx2:idx3]` 返回的切片的长度为 `(idx2-idx1)`，容量为 `(idx3-idx1)`。
+
+原因：不指定容量上界索引时，返回的切片容量可包含底层数组最后一个元素，当传递切片时，这种“访问权限”不可控制，容易导致对底层数组意料之外的修改。增加这个参数可以精细控制切片相对底层数组的访问权限。也就是说，在创建切片时设置切片的容量和长度一样(即容量上界索引和元素上界索引相同)，就可以强制让新切片的第一个 `append` 操作创建新的底层数组，与原有的底层数组分离。新切片与原有底层数组分离后，可以安全地进行后续修改。
+
+**注意：**在指定容量上界索引时，不能省略元素上界索引。
 
 ### append 追加到 slice
 
@@ -45,7 +91,9 @@
   - slice 的类型是 T
   - `[param_list]`是要追加到 slice 的 T 类型的值，也可以是一个切片，用 `...`，如 `newslice := append(slice1, slice2...)`
   - 返回值是一个 slice，包含了 slice_name 的所有元素以及追加的所有元素
-    - 如果 slice_name 不能包含所有追加的元素，会分配一个更大的数组，返回的 slice 指向新分配的数组
+- **注意：**append 操作不会改变 slice_name
+  - 在无需扩容时，返回的切片和 slice_name 共用底层数组，且指针类型值和容量都和 slice_name 相同
+  - 如果 slice_name 不能包含所有追加的元素，会分配一个更大的数组(大于等于需要存储的元素的数目总和)，返回的 slice 指向新分配的数组，且长度和容量都等于新分配数组的长度
 
 ```go
 package main
@@ -80,8 +128,8 @@ func printSlice(s []int) {
 ## copy 对 slice 拷贝
 
 - 使用 `copy(dst_slice, ori_slice) int` 函数拷贝切片
-  - 将 ori_slice 的元素复制到 dst_slice
-  - 返回复制元素的数目
+  - 将 ori_slice 的元素复制到 dst_slice，会修改 dst_slice 的底层数组
+  - 返回复制元素的数目，实际等于长度较短的切片的长度，即 `min(len(dst_slice), len(ori_slice))`
 
 ## 对 slice 切片
 
@@ -124,7 +172,7 @@ func printSlice(s []int) {
 
 - 创建一个数组 `[3] bool {true, true, false}`
 - 创建一个相同的数组，并且创建数组的一个 slice 引用 `[] bool {true, true, false}`
-- **切片没有指定元素的数目**
+- **切片没有指定元素的数目**，即创建切片时在 `[]` 运算符内不能指定值，否则会创建数组
 
 ```go
 package main

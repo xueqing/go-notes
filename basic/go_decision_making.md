@@ -1,11 +1,16 @@
 # go 条件语句
 
-- [go 条件语句](#go-%e6%9d%a1%e4%bb%b6%e8%af%ad%e5%8f%a5)
+- [go 条件语句](#go-条件语句)
   - [if](#if)
-    - [if 语句](#if-%e8%af%ad%e5%8f%a5)
-    - [if...else 语句](#ifelse-%e8%af%ad%e5%8f%a5)
-    - [if 嵌套语句](#if-%e5%b5%8c%e5%a5%97%e8%af%ad%e5%8f%a5)
+    - [if 语句](#if-语句)
+    - [if...else 语句](#ifelse-语句)
+    - [if 嵌套语句](#if-嵌套语句)
   - [switch](#switch)
+    - [表达式 switch](#表达式-switch)
+      - [switch 可包含简短的声明语句](#switch-可包含简短的声明语句)
+      - [没有条件的 switch 语句](#没有条件的-switch-语句)
+      - [case 中的 fallthrough/break 语句](#case-中的-fallthroughbreak-语句)
+    - [类型 switch 语句](#类型-switch-语句)
   - [select](#select)
 
 ## if
@@ -59,8 +64,11 @@ if {
 
 ## switch
 
+### 表达式 switch
+
 - 每个 case 分支都是唯一的，从上到下测试直到匹配，**只执行匹配项**，匹配项后面不用加 break(每个测试项后面自动加上 break)，和 C++ 不同
 - 另外一个区别是每个 case 不需要是常数，值也不必是整数
+- default case 最多只能有一个，且不是必须作为最后一个 case 出现。如果没有找到匹配的 case，存在 default case 时会执行 default case
 
   ```go
   switch var1 { //case 的值必须是相同类型
@@ -72,6 +80,8 @@ if {
           //...
   }
   ```
+
+#### switch 可包含简短的声明语句
 
 - switch 也有简短的声明语句，声明变量只对 switch 范围可见
 
@@ -94,6 +104,8 @@ if {
       }
   }
   ```
+
+#### 没有条件的 switch 语句
 
 - 没有条件语句的 switch 和 `switch true` 相同。这个可以用于实现比较长的 if-then-else 链
 
@@ -118,6 +130,45 @@ if {
   }
   ```
 
+#### case 中的 fallthrough/break 语句
+
+- case 语句列表最后一句可以是 fallthrough 语句。这会将流程控制权转移到下一条 case 语句。
+  - fallthrough 只能是 case 语句列表的最后一句
+  - fallthrough 不能在最后一个 case
+- case 语句列表也可以出现 break 语句。break 语句包含一个关键字 break 和一个可选的标记
+
+### 类型 switch 语句
+
+- 类型 switch 语句对；类型进行判定，而不是值。其他方面与表达式 switch 相同。这个 switch 表达式类似于类型断言的表达式
+
+```go
+switch v.(type) {
+case int, uint:
+    fmt.Printf("type is integer %d\n", v)
+case string:
+    fmt.Printf("type is string %s\n", v.(string))
+default:
+    fmt.Printf("I don't know about type %T!\n", v)
+}
+```
+
+- 这里的变量 v 必须是接口类型。否则，已知 v 的类型就不需要类型选择。另外，case 中的类型字面量必须是 v 的类型的实现类型
+- 通用的方案是将 v 的类型设置为 `interface{}`，这样所有类型都是它的实现类型
+- case 表达式中的类型字面量可以是 nil
+- case 表达式中不能出现 fallthrough
+- 直接使用 `v.(type)` 优化流程：不再需要显式类型转换，相当于每个 case 语句列表开始的时候自动调用 `i := v.(actual_type)`
+
+```go
+switch i := v.(type) {
+case int, uint:
+    fmt.Printf("type is integer %d\n", i)
+case string:
+    fmt.Printf("type is string %s\n", i)
+default:
+    fmt.Printf("I don't know about type %T!\n", i)
+}
+```
+
 ## select
 
 - `select` 语句使一个 goroutine 可以等待多个通信操作
@@ -135,7 +186,7 @@ if {
   ```
 
   - `case` 必须是一个通信，所有 `channel` 表达式会被求值
-  - 所有发送的表达式会被求值
+  - **case 右边的发送和接收语句中的通道表达式和元素表达式都会被先求值。求值顺序是自上而下、从左到右的**
   - 任意某个 `channel` 可以进行，就会执行，其他的被忽略
   - 如果多个 `case` 可以执行，会随机公平选择一个执行，忽略其他
   - 没有可以执行的 `case` 语句
