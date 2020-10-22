@@ -1,17 +1,21 @@
 # 安装 go
 
-- [安装 go](#%e5%ae%89%e8%a3%85-go)
-  - [Linux 安装和使用 go](#linux-%e5%ae%89%e8%a3%85%e5%92%8c%e4%bd%bf%e7%94%a8-go)
-    - [安装](#%e5%ae%89%e8%a3%85)
-    - [设置工作目录 GOPATH](#%e8%ae%be%e7%bd%ae%e5%b7%a5%e4%bd%9c%e7%9b%ae%e5%bd%95-gopath)
-    - [测试安装](#%e6%b5%8b%e8%af%95%e5%ae%89%e8%a3%85)
-    - [安装其他版本](#%e5%ae%89%e8%a3%85%e5%85%b6%e4%bb%96%e7%89%88%e6%9c%ac)
-  - [Windows 安装和使用 go](#windows-%e5%ae%89%e8%a3%85%e5%92%8c%e4%bd%bf%e7%94%a8-go)
-  - [MacOS 安装和使用 go](#macos-%e5%ae%89%e8%a3%85%e5%92%8c%e4%bd%bf%e7%94%a8-go)
-  - [卸载旧版本](#%e5%8d%b8%e8%bd%bd%e6%97%a7%e7%89%88%e6%9c%ac)
-  - [命令](#%e5%91%bd%e4%bb%a4)
-  - [vscode 使用 go](#vscode-%e4%bd%bf%e7%94%a8-go)
-  - [配置代理](#%e9%85%8d%e7%bd%ae%e4%bb%a3%e7%90%86)
+- [安装 go](#安装-go)
+  - [Linux 安装和使用 go](#linux-安装和使用-go)
+    - [安装](#安装)
+    - [设置工作目录 GOPATH](#设置工作目录-gopath)
+    - [测试安装](#测试安装)
+    - [安装其他版本](#安装其他版本)
+  - [Windows 安装和使用 go](#windows-安装和使用-go)
+  - [MacOS 安装和使用 go](#macos-安装和使用-go)
+  - [卸载旧版本](#卸载旧版本)
+  - [命令](#命令)
+  - [vscode 使用 go](#vscode-使用-go)
+    - [配置代理](#配置代理)
+    - [安装插件](#安装插件)
+    - [私有仓库使用](#私有仓库使用)
+    - [使用 cgo](#使用-cgo)
+  - [参考](#参考)
 
 ## Linux 安装和使用 go
 
@@ -29,11 +33,11 @@
 
 ### 设置工作目录 GOPATH
 
+- 默认工作目录是 `$HOME/go`
 - 工作目录下面有三个文件夹
   - src：存放源码的目录，新建项目都在该目录下
   - pkg：编译生成的包文件存放目录
   - bin：编译生成的可执行文件和 go 相关的工具
-- 默认工作目录是 `$HOME/go`
 - 如果需要自定义工作目录：
   - **建议：**不要和 go 的安装目录相同
   - 修改 `~/.bashrc`，添加 `export GOPATH=$HOME/go`
@@ -122,48 +126,84 @@
 ## 命令
 
 - 查看 golang 环境变量 `go env`
+- 公开模块导入超时，配置代理 `go env -w GOPROXY="https://goproxy.io"`
 
 ## vscode 使用 go
 
+### 配置代理
+
+- 配置环境变量 `go env -w GOPROXY="https://goproxy.io"`
+- 重启 vscode
+
+### 安装插件
+
 - 安装插件 `Go`
-- 配置 vscode
-  - 选择 `File` -> `Preferences` -> `Settings`，搜索 go
-    - "Go: Build On Save": "workspace"
-    - "Go: Gopath": "/home/kiki/go"
-      - Linux 配置: "/home/kiki/go"
-      - Windows 配置: "G:\\gopro"
-    - "Go: Goroot"
-      - Linux 配置: "/usr/local/go"
-      - Windows 配置："C:\\Go"
-- 打开 go 的工作目录，第一次打开 go 后缀结尾的文件时，会提示安装 gopkgs，选择 `Install All`，等待安装结束
-- vscode 自动安装失败，执行手动安装
-  - 1 在 `%GOPATH%/src/golang.org/x` 目录下，执行 `git clone git@github.com:golang/tools.git`
-  - 2 进入 `%GOPATH%/src/golang.org/x/tools/cmd/gorename` 目录，执行 `go install`
-  - 3 进入 `%GOPATH%/src/golang.org/x/tools/cmd/guru` 目录，执行 `go install`
-  - 4 重启 vscode，打开 go 后缀结尾的文件，点击 `Analysis Tools Missing`，继续之前安装失败的 go 包
-- 安装过程中，有的包可能会安装失败
-  - 1 使用 tools 下载
-    - 进入 `%GOPATH%/src/golang.org/x` 目录，使用命令 `git clone https://github.com/golang/tools.git` 下载插件依赖工具的源码，所需工具源码就都保存在 tools 目录中
-    - 进入 `%GOPATH%` 目录，根据之前的安装失败提示信息安装对应的依赖工具：比如 `go install github.com/mdempsky/gocode`
-  - 2 使用 lint 下载
-    - `go install golang.org/x/lint/golint` 报错
+- `Ctrl+Shift+P`，输入 `go`
+- 选择 `Install/Update Tools`
+- 全选，安装
+- 重启 vscode
 
-      ```sh
-      can't load package: package golang.org/x/lint/golint: cannot find package "golang.org/x/lint/golint" in any of:
-      /usr/local/go/src/golang.org/x/lint/golint (from $GOROOT)
-      /home/kiki/go/src/golang.org/x/lint/golint (from $GOPATH)
-      ```
-  
-    - 因为 golint 的源码在 lint 下，而不是 tools，需要单独拉取 golint 源码
-    - 进入 `%GOPATH%\src\golang.org\x` 目录，执行命令 `git clone https://github.com/golang/lint` 拉取 golint 源码
-    - 进入 `%GOPATH%` 目录，通过 `go install` 安装 golint：`go install golang.org/x/lint/golint`
-- 重启 vscode 后，插件就可以正常使用了
+### 私有仓库使用
 
-## 配置代理
+如果有一个私有仓库 <gitlab.bmi>，使用 `go get` 获取仓库时会报错：
 
-- 执行 `go mod init` 生成默认 module 文件
-- 配置环境变量 `export GOPROXY=https://goproxy.io`
-- 重启 vscode，安装插件
-  - `Ctrl+Shift+P`，输入 `go`
-  - 选择 `Install/Update Tools`
-  - 全选，安装。重启 vscode 即可
+```sh
+go get -v gitlab.bmi/ylrc/bmi-av/rtspproxy.git
+go get gitlab.bmi/ylrc/bmi-av/rtspproxy.git: module gitlab.bmi/ylrc/bmi-av/rtspproxy.git: reading https://goproxy.io/gitlab.bmi/ylrc/bmi-av/rtspproxy.git/@v/list: 404 Not Found
+  server response:
+  not found: go list -m -json -versions gitlab.bmi/ylrc/bmi-av/rtspproxy.git@latest
+  :  
+```
+
+`go get` 通过带来无法访问私有仓库，因此出现 404 错误。需要配置 `GOPRIVATE` 环境变量，指定域名为私有仓库。
+
+```sh
+go env -w GOPRIVATE="*.bmi"
+```
+
+再次拉取源码仍然报错
+
+```sh
+go get -v gitlab.bmi/ylrc/bmi-av/rtspproxy.git
+# cd .; git ls-remote https://gitlab.bmi/ylrc/bmi-av/rtspproxy
+fatal: unable to access 'https://gitlab.bmi/ylrc/bmi-av/rtspproxy/': Failed to connect to gitlab.bmi port 443: Connection refused
+kiki@gitlab.bmi's password:
+```
+
+这是因为默认配置 ssh 公钥访问私有仓库，因此需要配置 git 拉取私有仓库时使用 ssh 而不是 https。
+
+```sh
+# 方法 1：使用 git 命令配置
+git config --global url."git@gitlab.bmi".insteadOf https://gitlab.bmi
+## 或者
+git config --global url."ssh://git@gitlab.bmi".insteadOf https://gitlab.bmi
+# 方法 2：修改 git 配置文件
+vim ~/.gitconfig
+## 加入下面的内容
+[url "git@gitlab.bmi:"]
+  insteadOf = https://gitlab.bmi
+## 或
+[url "ssh://git@gitlab.bmi/"]
+  insteadOf = https://gitlab.bmi/
+```
+
+### 使用 cgo
+
+比如使用 ffmpeg 库进行开发
+
+```sh
+# 编译 ffmpeg：安装目录是 /home/kiki/ffmpeg/ffmpeg-4.1
+# 添加 ffmpeg 动态库路径
+vim ~/.bashrc
+# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/kiki/ffmpeg/ffmpeg-4.1/lib
+source ~/.bashrc
+# 更新缓存
+sudo ldconfig
+# 修改 go 环境变量
+go env -w CGO_CFLAGS="-I/home/kiki/ffmpeg/ffmpeg-4.1/include"
+go env -w CGO_LDFLAGS="-L/home/kiki/ffmpeg/ffmpeg-4.1/lib -lavcodec -lavformat -lavutil -lswscale -lswresample -lavdevice -lavfilter"
+```
+
+## 参考
+
+- [Go填坑之将Private仓库用作module依赖](https://segmentfault.com/a/1190000021127791)
