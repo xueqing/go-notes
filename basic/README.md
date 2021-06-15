@@ -25,7 +25,7 @@
 - 补充笔记
   - [异常处理](go_exception.md)
   - [runtime 环境变量](go_runtime_env.md)
-  - [堆栈跟踪分析](go_stack_trace.md.md)
+  - [堆栈跟踪分析](go_stack_trace.md)
   - [包](go_package.md)
   - [结构体](go_struct.md)
   - [goroutine](go_goroutine.md)
