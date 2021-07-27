@@ -460,7 +460,7 @@ panic: runtime error: integer divide by zero
 
 goroutine 6 [running]:
 # 如果多个参数可以填充到一个字，则这些参数值会合并传递
-## 3 个布尔型和 1 个无符号 8 位证书可以合并到一个字 0x00 01 00 01
+## 3 个布尔型和 1 个无符号 8 位整数可以合并到一个字 0x00 01 00 01
 main.(*trace).example(0x57ab60, 0x10001, 0xc0000200c0)
   /home/kiki/gopro/test/main.go:31 +0x176
 main.main.func1(0xc000014110, 0x57ab60, 0xc0000260c0, 0x2, 0x4, 0x0, 0xc0000200c0)
