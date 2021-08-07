@@ -43,15 +43,20 @@ func test() {
 
 func main() {
 	test()
-	runtime.GC()
 	// if main exit here, it may not run A and B's Finalizer
 	for i := 0; i < 5; i++ {
 		time.Sleep(time.Second)
+		fmt.Printf("Sleep %vs\n", i+1)
 		runtime.GC()
 	}
 	// output:
-	// 		NewB: &{555}
-	// 		NewA: &{0xc0000140e0}
-	// 		release A(&{555})
-	// 		release B(555)
+	//	NewB: &{555}
+	//	NewA: &{0xc0000140e0}
+	//	Sleep 1s
+	//	release A(&{555})
+	//	Sleep 2s
+	//	release B(555)
+	//	Sleep 3s
+	//	Sleep 4s
+	//	Sleep 5s
 }
