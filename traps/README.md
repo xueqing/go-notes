@@ -8,6 +8,6 @@
 - [同一包不同源文件变量声明时不要带包名](package_var.md)
 - [string 类型](string.md)
 - [不使用短变量声明 `:=`](var_scope.md)
-- [cgo 调用宏函数](cgo_micro_func.md)
+- [cgo 调用宏函数](cgo_macro_func.md)
 
 - 有时候新定义的变量或者函数不能跳转，需要重启 vscode，相关插件长时间运行可能崩溃
