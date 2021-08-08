@@ -49,14 +49,17 @@ func main() {
 		fmt.Printf("Sleep %vs\n", i+1)
 		runtime.GC()
 	}
-	// output:
-	//	NewB: &{555}
-	//	NewA: &{0xc0000140e0}
-	//	Sleep 1s
-	//	release A(&{555})
-	//	Sleep 2s
-	//	release B(555)
-	//	Sleep 3s
-	//	Sleep 4s
-	//	Sleep 5s
 }
+
+/*
+output:
+		NewB: &{555}
+		NewA: &{0xc0000140e0}
+		Sleep 1s
+		release A(&{555})
+		Sleep 2s
+		release B(555)
+		Sleep 3s
+		Sleep 4s
+		Sleep 5s
+*/
