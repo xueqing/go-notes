@@ -10,5 +10,6 @@
 - [不使用短变量声明 `:=`](var_scope.md)
 - [cgo 调用宏函数](cgo_macro_func.md)
 - [defer 语句需要注意的](defer.md)
+- [WaitGroup 不是引用类型](waitgroup.md)
 
 - 有时候新定义的变量或者函数不能跳转，需要重启 vscode，相关插件长时间运行可能崩溃
